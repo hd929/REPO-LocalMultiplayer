@@ -136,7 +136,9 @@ internal class JsonSave : IDisposable
                 Directory.CreateDirectory(DirectoryPath);
             }
 
-            File.WriteAllText(FilePath, data.ToString(), Encoding.UTF8);
+            using var fs = new FileStream(FilePath, FileMode.Create, FileAccess.Write, FileShare.Read);
+            using var writer = new StreamWriter(fs, Encoding.UTF8);
+            writer.Write(data.ToString());
 
             return true;
         }
