@@ -13,6 +13,10 @@ internal static class ConfigManager
     public static ConfigEntry<string> Photon_AppIdRealtime { get; private set; }
     public static ConfigEntry<string> Photon_AppIdVoice { get; private set; }
 
+    public static bool HasPhotonAppIds =>
+        !string.IsNullOrWhiteSpace(Photon_AppIdRealtime?.Value) &&
+        !string.IsNullOrWhiteSpace(Photon_AppIdVoice?.Value);
+
     public static void Initialize(ConfigFile configFile)
     {
         ConfigFile = configFile;

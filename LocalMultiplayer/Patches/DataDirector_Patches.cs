@@ -12,9 +12,15 @@ internal static class DataDirector_Patches
     [HarmonyPostfix]
     private static void PhotonSetAppId_Patch()
     {
+        if (!ConfigManager.HasPhotonAppIds)
+        {
+            Logger.LogError("Photon App IDs are missing. Set Photon/AppIdRealtime and Photon/AppIdVoice in the global config.");
+            return;
+        }
+
         AppSettings appSettings = PhotonNetwork.PhotonServerSettings.AppSettings;
-        appSettings.AppIdRealtime = ConfigManager.Photon_AppIdRealtime.Value;
-        appSettings.AppIdVoice = ConfigManager.Photon_AppIdVoice.Value;
+        appSettings.AppIdRealtime = ConfigManager.Photon_AppIdRealtime.Value.Trim();
+        appSettings.AppIdVoice = ConfigManager.Photon_AppIdVoice.Value.Trim();
     }
 
     [HarmonyPatch(nameof(DataDirector.SaveSettings))]
