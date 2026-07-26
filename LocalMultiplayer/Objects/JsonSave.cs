@@ -84,7 +84,7 @@ internal class JsonSave : IDisposable
                 return false;
             }
 
-            RefreshData();
+            RefreshData(skipMutex: true);
 
             _data ??= [];
             _data[key] = JToken.FromObject(value);
@@ -149,14 +149,34 @@ internal class JsonSave : IDisposable
         }
     }
 
-    private void RefreshData()
+    private void RefreshData(bool skipMutex = false)
     {
-        _data = ReadFile();
-
-        if (_data == null)
+        bool hasHandle = false;
+        try
         {
-            Logger.LogError("RefreshData: Data is null. Creating new.");
-            _data = [];
+            if (!skipMutex)
+            {
+                hasHandle = _mutex.WaitOne(_mutexTimeoutMs);
+            }
+
+            _data = ReadFile();
+
+            if (_data == null)
+            {
+                Logger.LogError("RefreshData: Data is null. Creating new.");
+                _data = [];
+            }
+        }
+        catch (Exception ex)
+        {
+            Logger.LogError($"RefreshData: Mutex error. {ex.Message}");
+        }
+        finally
+        {
+            if (hasHandle && !skipMutex)
+            {
+                _mutex.ReleaseMutex();
+            }
         }
     }
 
